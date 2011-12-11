@@ -18,7 +18,7 @@ class Node(object):
         self.port = port
         self.nodelist = nodelist
     def hello(self):
-        ${0}
+        pass
 
 def main():
     pass

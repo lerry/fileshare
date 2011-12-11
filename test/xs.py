@@ -5,14 +5,13 @@ by Lerry  http://lerry.org
 Start from 2011/07/03 19:27:20
 Last edit at 2011/07/03
 '''
-<<<<<<< HEAD
 from xmlrpclib import ServerProxy
 from os.path import join, isfile
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from urlparse import urlparse
 import sys
 
-MAX_HISTORY_LENGTH = 5
+MAX_HISTORY_LENGTH = 6
 
 OK = 1
 FAIL = 2
@@ -20,12 +19,13 @@ EMPTY = ''
 
 def getPort(url):
     name = urlparse(url)[1]
-    return int(url[url.find(':')+1:])
+    parts = name.split(':')
+    return int(parts[-1])
 
-class Node(object):
+class Node:
     def __init__(self, url, dirname, secret):
         self.url = url
-        self.dirname= dirname
+        self.dirname = dirname
         self.secret = secret
         self.known = set()
 
@@ -34,18 +34,19 @@ class Node(object):
         if code == OK:
             return code, data
         else:
-            history+=[self.url]
+            history = history + [self.url]
             if len(history) >= MAX_HISTORY_LENGTH:
                 return FAIL, EMPTY
-            return self._broadcast(query,history)
+            return self._broadcast(query, history)
 
-    def hello(self,other):
+    def hello(self, other):
         self.known.add(other)
         return OK
 
+    def list(self):
+        return self.known.copy()
     def fetch(self, query, secret):
-        if secret != self.secret:
-            return FAIL
+        if secret != self.secret: return FAIL
         code, data = self.query(query)
         if code == OK:
             f = open(join(self.dirname, query), 'w')
@@ -56,14 +57,14 @@ class Node(object):
             return FAIL
 
     def _start(self):
-        s = SimpleXMLRPCServer('',getPort(self.url))
+        s = SimpleXMLRPCServer(("", getPort(self.url)), )#logRequests=False)
         s.register_instance(self)
         s.serve_forever()
 
     def _handle(self, query):
-        name = join(self.dirname, query)
-        if not isfile:
-            return FAIL, EMPTY
+        dir = self.dirname
+        name = join(dir, query)
+        if not isfile(name): return FAIL, EMPTY
         return OK, open(name).read()
 
     def _broadcast(self, query, history):
@@ -79,21 +80,8 @@ class Node(object):
         return FAIL, EMPTY
 
 def main():
-    url, dirname, secret = sys.argv[1:]
-    n = Node(url, dirname, secret)
+    url, directory, secret = sys.argv[1:]
+    n = Node(url, directory, secret)
     n._start()
 
-if __name__ == '__main__':
-    main()
-=======
-import os
-from SimpleXMLRPCServer import SimpleXMLRPCServer
-xs = SimpleXMLRPCServer(('',1724))
-def test(x):
-    return [1,2,3,x]
-def getUptime():
-    return os.popen('uptime').read()
-xs.register_function(test)
-xs.register_function(getUptime)
-xs.serve_forever()
->>>>>>> bc9548663bfbb84b5afe4ffde56325ac3c181fff
+if __name__ == '__main__': main()
