@@ -21,7 +21,7 @@ from SocketServer import ThreadingMixIn
 
 TTL = config.TTL
 UUID = uuid.uuid1().get_hex()
-nodelist = {UUID:('127.0.0.1','1234')}
+nodelist = {UUID:('202.197.209.98','1234')}
 ip = socket.gethostbyname(socket.gethostname())
 port = config.PORT
 LIMIT = 50
@@ -46,11 +46,11 @@ class Node(object):
     def _greet(self,node):
         nodeinfo = nodelist[node]
         s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
-        #try:
-        templist = pickle.loads(s.hello([self.UUID,ip,str(self.port)]))
-        self.nodelist.update(templist)
-        #except:
-         #   del self.nodelist[node]
+        try:
+            templist = pickle.loads(s.hello([self.UUID,ip,str(self.port)]))
+            self.nodelist.update(templist)
+        except:
+            del self.nodelist[node]
 
 
     def keepFind(self):
