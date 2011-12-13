@@ -8,7 +8,11 @@ Last edit at 2011/07/03
 import uuid
 import time
 import socket
-import random
+try:
+    import cPickle as pickle
+except:
+    import pickle
+import pickle
 import config
 from threading import Thread
 from SimpleXMLRPCServer import SimpleXMLRPCServer
@@ -17,7 +21,7 @@ from SocketServer import ThreadingMixIn
 
 TTL = config.TTL
 UUID = uuid.uuid1().get_hex()
-nodelist = [UUID:('127.0.0.1','724')]
+nodelist = {UUID:('127.0.0.1','1234')}
 ip = socket.gethostbyname(socket.gethostname())
 port = config.PORT
 LIMIT = 50
@@ -35,15 +39,19 @@ class Node(object):
         t.start()
 
     def _greeting(self):
-        for node in self.nodelist:
+        temp = self.nodelist.copy()
+        for node in temp:
             self._greet(node)
 
     def _greet(self,node):
         #get node's ip & port
         nodeinfo = nodelist[node]
-        s = ServerProxy(('http://'+node[0], node[1]))
-        templist = s.hello((self.UUID:))
-        for item  in templist:
+        s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
+        #try:
+        templist = pickle.loads(s.hello([self.UUID,ip,str(self.port)]))
+        self.nodelist.update(templist)
+        #except:
+         #   del self.nodelist[node]
 
 
     def keepFind(self):
@@ -52,7 +60,7 @@ class Node(object):
         '''
         while 1:
             #break
-            print 'I am runing'
+            self._greeting()
             time.sleep(1)
 
     def hello(self,info):
@@ -60,10 +68,11 @@ class Node(object):
         introduce yourself to other node,
         and check if he is online
         '''
-        if info not in self.nodelist:
-            self.nodelist.append(info)
-        random.shuffle(self.nodelist)
-        return self.nodelist[:LIMIT]
+        if info:
+            self.nodelist[info[0]] = tuple(info[1:])
+            #print self.nodelist
+        #random.shuffle(self.nodelist)
+        return pickle.dumps(self.nodelist)
 
     def _start(self):
         s = ThreadXMLRPCServer(('',self.port))
