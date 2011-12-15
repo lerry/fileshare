@@ -33,7 +33,7 @@ def getIP():
 
 TTL = config.TTL
 UUID = uuid.uuid1().get_hex()
-nodelist = {UUID:('202.197.209.98','1234')}
+nodelist = {UUID:('192.168.1.8','1234')}
 ip = getIP()
 port = config.PORT
 LIMIT = 50
