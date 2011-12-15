@@ -8,6 +8,7 @@ Last edit at 2011/07/03
 import uuid
 import time
 import socket
+from socket import SOCK_DGRAM, AF_INET
 try:
     import cPickle as pickle
 except:
@@ -19,14 +20,28 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer
 from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
 
+def getIP():
+    '''
+    get local ip address
+    '''
+    s = socket.socket(AF_INET, SOCK_DGRAM)
+    try:
+        s.connect(('www.baidu.com',0))
+        return s.getsockname()[0]
+    except:
+        return socket.gethostbyname(socket.gethostname())
+
 TTL = config.TTL
 UUID = uuid.uuid1().get_hex()
 nodelist = {UUID:('202.197.209.98','1234')}
-ip = socket.gethostbyname(socket.gethostname())
+ip = getIP()
 port = config.PORT
 LIMIT = 50
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
+    '''
+    build a xmlrpcserver supporting mutithread
+    '''
     pass
 
 class Node(object):
