@@ -33,10 +33,10 @@ def getIP():
 
 TTL = config.TTL
 UUID = uuid.uuid1().get_hex()
-nodelist = {UUID:('192.168.1.8','1234')}
 ip = getIP()
 port = config.PORT
 LIMIT = 50
+nodelist = {UUID:(ip,'1234')}
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
@@ -75,7 +75,8 @@ class Node(object):
         while 1:
             #break
             self._greeting()
-            time.sleep(1)
+            print self.nodelist
+            time.sleep(2)
 
     def hello(self,info):
         '''
