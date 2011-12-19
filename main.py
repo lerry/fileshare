@@ -5,6 +5,8 @@ by Lerry  http://lerry.org
 Start from 2011/07/03 21:57:56
 Last edit at 2011/07/03
 '''
+import sys
+import re
 import uuid
 import time
 import socket
@@ -31,12 +33,26 @@ def getIP():
     except:
         return socket.gethostbyname(socket.gethostname())
 
+def guessIP():
+    if "win" in sys.platform:
+        return socket.gethostbyname(socket.gethostname())
+    else:
+        process = "/sbin/ifconfig"
+        pattern = re.compile(r"inet\ addr\:((\d+\.){3}\d+)", re.MULTILINE)
+        try:
+            proc = subprocess.Popen(process, stdout=subprocess.PIPE)
+            proc.wait()
+            data = proc.stdout.read()
+            return pattern.findall(data)[0][0]
+        except:
+            return "127.0.0.1"
+
 TTL = config.TTL
 UUID = uuid.uuid1().get_hex()
 ip = getIP()
 port = config.PORT
 LIMIT = 50
-nodelist = {UUID:(ip,'1234')}
+nodelist = {UUID:('192.168.1.8','1234')}
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
