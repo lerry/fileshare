@@ -9,11 +9,9 @@ Last edit at 2011-12-21 17:49
 from core import Node
 import utils
 
-nodelist = {'83e92cb95e36444eb8a2daa87a7abbdf':('192.168.1.8','1234')}
-
 
 def main():
-    n = Node(1234, loadNodelist())
+    n = Node(1234, utils.load_nodelist(), utils.get_uuid())
     n._start()
 
 

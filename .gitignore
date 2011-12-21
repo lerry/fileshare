@@ -1,4 +1,5 @@
 *.pyc
 *.db
 temp.py
+nodelist.dat
 /sessions

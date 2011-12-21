@@ -5,8 +5,6 @@ by Lerry  http://lerry.org
 Start from 2011/07/03 21:57:56
 Last edit at 2011/07/03
 '''
-import sys
-import re
 import uuid
 import time
 import socket
@@ -21,38 +19,10 @@ from threading import Thread
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
-
-def getIP():
-    '''
-    get local ip address
-    '''
-    s = socket.socket(AF_INET, SOCK_DGRAM)
-    try:
-        s.connect(('www.baidu.com',0))
-        return s.getsockname()[0]
-    except:
-        return socket.gethostbyname(socket.gethostname())
-
-def guessIP():
-    if "win" in sys.platform:
-        return socket.gethostbyname(socket.gethostname())
-    else:
-        process = "/sbin/ifconfig"
-        pattern = re.compile(r"inet\ addr\:((\d+\.){3}\d+)", re.MULTILINE)
-        try:
-            proc = subprocess.Popen(process, stdout=subprocess.PIPE)
-            proc.wait()
-            data = proc.stdout.read()
-            return pattern.findall(data)[0][0]
-        except:
-            return "127.0.0.1"
+import utils
 
 TTL = config.TTL
-UUID = uuid.uuid1().get_hex()
-ip = getIP()
-port = config.PORT
-LIMIT = 50
-nodelist = {UUID:('192.168.1.8','1234')}
+
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
@@ -61,7 +31,7 @@ class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     pass
 
 class Node(object):
-    def __init__(self, port, nodelist):
+    def __init__(self, port, nodelist, UUID):
         self.port = port
         self.nodelist = nodelist
         self.UUID = UUID
@@ -75,7 +45,7 @@ class Node(object):
             self._greet(node)
 
     def _greet(self,node):
-        nodeinfo = nodelist[node]
+        nodeinfo = self.nodelist[node]
         s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
         try:
             templist = pickle.loads(s.hello([self.UUID,ip,str(self.port)]))
@@ -101,8 +71,6 @@ class Node(object):
         '''
         if info:
             self.nodelist[info[0]] = tuple(info[1:])
-            #print self.nodelist
-        #random.shuffle(self.nodelist)
         return pickle.dumps(self.nodelist)
 
     def _start(self):
@@ -111,7 +79,7 @@ class Node(object):
         s.serve_forever()
 
 def main():
-    n = Node(1234, nodelist)
+    n = Node(1234, utils.load_nodelist(), utils.get_uuid())
     n._start()
 
 
