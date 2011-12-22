@@ -5,21 +5,17 @@ by Lerry  http://lerry.org
 Start from 2011/07/03 21:57:56
 Last edit at 2011/07/03
 '''
-import uuid
 import time
-import socket
-from socket import SOCK_DGRAM, AF_INET
 try:
     import cPickle as pickle
 except:
     import pickle
-import pickle
 import config
 from threading import Thread
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
-import utils
+from modules import utils
 
 TTL = config.TTL
 
@@ -35,6 +31,7 @@ class Node(object):
         self.port = port
         self.nodelist = nodelist
         self.UUID = UUID
+        self.ip = utils.get_ip()
         t = Thread(target=self.keepFind)
         t.setDaemon(1)
         t.start()
@@ -48,7 +45,7 @@ class Node(object):
         nodeinfo = self.nodelist[node]
         s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
         try:
-            templist = pickle.loads(s.hello([self.UUID,ip,str(self.port)]))
+            templist = pickle.loads(s.hello([self.UUID,self.ip,str(self.port)]))
             self.nodelist.update(templist)
         except:
             del self.nodelist[node]

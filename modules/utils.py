@@ -6,15 +6,9 @@ by Lerry  http://lerry.org
 Start from 2011-12-21 18:05
 Last edit at 2011-12-21 18:05
 '''
-import os
 import uuid
-try:
-    import cPickle as pickle
-except:
-    import pickle
-
-LIMIT = 50
-
+import socket
+from socket import SOCK_DGRAM, AF_INET
 
 def get_ip():
     '''
@@ -28,16 +22,7 @@ def get_ip():
         return socket.gethostbyname(socket.gethostname())
 
 
-def load_nodelist():
-    nodelist = {}
-    if not os.path.exists('nodelist.dat'):
-        nodelist = {'super_node':('192.168.1.8','1234')}
-        nodelist_file = open('nodelist.dat','wb')
-        pickle.dump(nodelist,nodelist_file)
-        nodelist_file.close()
-    else:
-        nodelist = pickle.load(open('nodelist.dat','rb'))
-    return nodelist
+
 
 
 def get_uuid():
