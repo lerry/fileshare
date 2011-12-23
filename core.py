@@ -16,6 +16,7 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer
 from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
 from modules import utils
+from modules.nodes_manager import NodeDb
 
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
