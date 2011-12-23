@@ -17,8 +17,6 @@ from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
 from modules import utils
 
-TTL = config.TTL
-
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
