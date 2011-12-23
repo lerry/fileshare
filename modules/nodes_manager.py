@@ -31,6 +31,11 @@ class NodeDb(object):
         self.cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node','192.168.1.8','1234'))
         self.conn.commit()
 
+    def _dict2tuple(info):
+        key = info.keys()[0]
+        value = info[key]
+        return (key,value[0],value[1])
+
     def has_node(self,uuid):
         '''
         check if a node in the list with the given uuid
@@ -59,6 +64,8 @@ class NodeDb(object):
         need a tuple of 3 item
         ('uuid','192.168.1.8','1234')
         '''
+        if type(node_info) == dict:
+            node_info = self._tuple2dict(node_info)
         if self.has_node(node_info[0]):
             self.update_node(node_info)
         else:
