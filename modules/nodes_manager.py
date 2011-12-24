@@ -15,23 +15,32 @@ class NodeDb(object):
     manage nodelist
     '''
     def __init__(self, dbfile):
+        self.db_file = dbfile
         if os.path.isfile(dbfile):
-            try:
-                self.conn = sqlite3.connect(dbfile)
-                self.cur = self.conn.cursor()
-            except:
-                raise Exception("can't connect to %s" % dbfile)
+            pass
         else:
-            self.conn = sqlite3.connect(dbfile)
-            self.cur = self.conn.cursor()
             self._initdb()
 
+    def connect(self):
+        try:
+            conn = sqlite3.connect(self.db_file)
+            return conn
+        except:
+            raise Exception("can't connect to %s" % dbfile)
+
+
     def _initdb(self):
-        self.cur.execute('CREATE TABLE nodelist(uuid TEXT, ip TEXT, port TEXT)')
-        self.cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node','192.168.1.8','1234'))
-        self.conn.commit()
+        with self.connect() as conn:
+            cur = conn.cursor()
+            cur.execute('CREATE TABLE nodelist(uuid TEXT, ip TEXT, port TEXT)')
+            cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node','192.168.1.8','1234'))
+            conn.commit()
+
 
     def _dict2tuple(info):
+        '''
+        convert {'u':('ip','p')} to ('u','ip','p')
+        '''
         key = info.keys()[0]
         value = info[key]
         return (key,value[0],value[1])
@@ -40,42 +49,51 @@ class NodeDb(object):
         '''
         check if a node in the list with the given uuid
         '''
-        self.cur.execute("SELECT * FROM nodelist WHERE uuid = '%s'" % uuid)
-        result = self.cur.fetchall()
-        if result:
-            return True
-        else:
-            return False
+        with self.connect() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM nodelist WHERE uuid = '%s'" % uuid)
+            result = cur.fetchall()
+            if result:
+                return True
+            else:
+                return False
 
     def get_list(self):
         '''
         return nodelist as a dictionary
         {'uuid':('192.168.1.8':'1234')}
         '''
-        self.cur.execute('SELECT * FROM nodelist')
-        result = self.cur.fetchall()
-        nodelist = {}
-        for item in result:
-            nodelist[item[0]] = item[1:]
-        return nodelist
+        with self.connect() as conn:
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM nodelist')
+            conn.commit()
+            result = cur.fetchall()
+            nodelist = {}
+            for item in result:
+                nodelist[item[0]] = item[1:]
+            return nodelist
 
     def add_node(self,node_info):
         '''
-        need a tuple of 3 item
+        need a tuple of 3 item or dict
         ('uuid','192.168.1.8','1234')
         '''
-        if type(node_info) == dict:
-            node_info = self._tuple2dict(node_info)
-        if self.has_node(node_info[0]):
-            self.update_node(node_info)
-        else:
-            self.cur.execute('INSERT INTO nodelist VALUES(?,?,?)', node_info)
-            self.conn.commit()
+        with self.connect() as conn:
+            cur = conn.cursor()
+            if type(node_info) == dict:
+                node_info = self._tuple2dict(node_info)
+            if self.has_node(node_info[0]):
+                self.update_node(node_info)
+            else:
+                cur.execute('INSERT INTO nodelist VALUES(?,?,?)', node_info)
+                conn.commit()
 
     def update_node(self,node_info):
-        value = (node_info[1],node_info[2],node_info[0])
-        self.cur.execute("UPDATE nodelist SET ip = '%s', port = '%s' WHERE uuid = '%s'" % value)
-        self.conn.commit()
+        with self.connect() as conn:
+            cur = conn.cursor()
+            value = (node_info[1],node_info[2],node_info[0])
+            cur.execute("UPDATE nodelist SET ip = '%s', port = '%s' WHERE uuid = '%s'" % value)
+            conn.commit()
 
     def rm_node(self,uuid):
         '''

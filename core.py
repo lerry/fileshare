@@ -26,28 +26,26 @@ class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     pass
 
 class Node(object):
-    def __init__(self, port, nodelist, UUID):
+    def __init__(self, port, nodes_file, UUID):
         self.port = port
-        self.nodelist = nodelist
+        self.nodes = NodeDb(nodes_file)
         self.UUID = UUID
         self.ip = utils.get_ip()
-        t = Thread(target=self.keepFind)
-        t.setDaemon(1)
-        t.start()
 
     def _greeting(self):
-        temp = self.nodelist.copy()
+        temp = self.nodes.get_list()
         for node in temp:
             self._greet(node)
 
     def _greet(self,node):
-        nodeinfo = self.nodelist[node]
+        nodeinfo = self.nodes.get_list()[node]
         s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
         try:
             templist = pickle.loads(s.hello([self.UUID,self.ip,str(self.port)]))
-            self.nodelist.update(templist)
+            for item in templist:
+                self.nodes.add_node(item)
         except:
-            del self.nodelist[node]
+            pass#del self.nodelist[node]
 
 
     def keepFind(self):
@@ -57,7 +55,7 @@ class Node(object):
         while 1:
             #break
             self._greeting()
-            print self.nodelist
+            print self.nodes.get_list()
             time.sleep(2)
 
     def hello(self,info):
@@ -66,16 +64,21 @@ class Node(object):
         and check if he is online
         '''
         if info:
-            self.nodelist[info[0]] = tuple(info[1:])
+            self.nodes.add_node(info)
+            #self.nodelist[info[0]] = tuple(info[1:])
         return pickle.dumps(self.nodelist)
 
     def _start(self):
+        t = Thread(target=self.keepFind)
+        t.setDaemon(1)
+        t.start()
         s = ThreadXMLRPCServer(('',self.port))
         s.register_instance(self)
         s.serve_forever()
 
+
 def main():
-    n = Node(1234, utils.load_nodelist(), utils.get_uuid())
+    n = Node(1234, 'nodes.db', utils.get_uuid())
     n._start()
 
 
