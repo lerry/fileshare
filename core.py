@@ -39,24 +39,32 @@ class Node(object):
 
     def _greet(self,node):
         nodeinfo = self.nodes.get_list()[node]
-        s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
-        try:
-            templist = pickle.loads(s.hello([self.UUID,self.ip,str(self.port)]))
-            for item in templist:
-                self.nodes.add_node(item)
-        except:
-            pass#del self.nodelist[node]
+        if nodeinfo:
+            s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
+            try:
+                print 11111111111
+                templist = pickle.loads(s.hello((self.UUID,self.ip,str(self.port))))
+                print 222222,templist
+                for item in templist:
+                    print 3333333
+                    if not item == self.UUID:
+                        self.nodes.add_node({item:templist[item]})
+                        print 4444444
+            except:
+                print 'remove %s' % node
+                self.nodes.rm_node(node)
 
 
     def keepFind(self):
         '''
         maintain a node list
         '''
+        time.sleep(2)
         while 1:
             #break
+            print 'nodes:',self.nodes.get_list()
             self._greeting()
-            print self.nodes.get_list()
-            time.sleep(2)
+            time.sleep(5)
 
     def hello(self,info):
         '''
@@ -64,9 +72,9 @@ class Node(object):
         and check if he is online
         '''
         if info:
-            self.nodes.add_node(info)
-            #self.nodelist[info[0]] = tuple(info[1:])
-        return pickle.dumps(self.nodelist)
+            if info[0] != self.UUID:
+                self.nodes.add_node(info)
+        return pickle.dumps(self.nodes.get_list())
 
     def _start(self):
         t = Thread(target=self.keepFind)

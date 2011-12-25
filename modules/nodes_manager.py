@@ -18,6 +18,7 @@ class NodeDb(object):
         self.db_file = dbfile
         if os.path.isfile(dbfile):
             pass
+            #self._initdb()
         else:
             self._initdb()
 
@@ -99,8 +100,11 @@ class NodeDb(object):
         '''
         remove a node from list
         '''
-        self.cur.execute("DELETE FROM nodelist WHERE uuid = '%s'" % uuid)
-        self.conn.commit()
+        if not uuid == 'super_node':
+            with self.connect() as conn:
+                cur = conn.cursor()
+                cur.execute("DELETE FROM nodelist WHERE uuid = '%s'" % uuid)
+                conn.commit()
 
 def _test():
     s = NodeDb('test.db')
