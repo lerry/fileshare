@@ -38,7 +38,7 @@ class NodeDb(object):
             conn.commit()
 
 
-    def _dict2tuple(info):
+    def _dict2tuple(self,info):
         '''
         convert {'u':('ip','p')} to ('u','ip','p')
         '''
@@ -82,7 +82,7 @@ class NodeDb(object):
         with self.connect() as conn:
             cur = conn.cursor()
             if type(node_info) == dict:
-                node_info = self._tuple2dict(node_info)
+                node_info = self._dict2tuple(node_info)
             if self.has_node(node_info[0]):
                 self.update_node(node_info)
             else:
@@ -100,11 +100,12 @@ class NodeDb(object):
         '''
         remove a node from list
         '''
-        if not uuid == 'super_node':
-            with self.connect() as conn:
-                cur = conn.cursor()
-                cur.execute("DELETE FROM nodelist WHERE uuid = '%s'" % uuid)
-                conn.commit()
+        #if uuid == 'super_node':
+            #return
+        with self.connect() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM nodelist WHERE uuid = '%s'" % uuid)
+            conn.commit()
 
 def _test():
     s = NodeDb('test.db')

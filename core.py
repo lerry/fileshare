@@ -33,26 +33,43 @@ class Node(object):
         self.ip = utils.get_ip()
 
     def _greeting(self):
-        temp = self.nodes.get_list()
-        for node in temp:
+        self.templist = self.nodes.get_list()
+        for node in self.templist:
             self._greet(node)
+
+    def _greet2(self,node):
+        nodeinfo = self.nodes.get_list()[node]
+        if nodeinfo:
+            s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
+            try:
+                templist = pickle.loads(s.hello((self.UUID,self.ip,str(self.port))))
+                for item in templist:
+                    if not item == self.UUID:
+                        print 3333
+                        self.nodes.add_node({item:templist[item]})
+                        print 4444444
+            except:
+                print 'remove %s' % node
+                if not node == 'super_node':
+                    self.nodes.rm_node(node)
 
     def _greet(self,node):
         nodeinfo = self.nodes.get_list()[node]
         if nodeinfo:
             s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
+            templist = {}
             try:
-                print 11111111111
                 templist = pickle.loads(s.hello((self.UUID,self.ip,str(self.port))))
-                print 222222,templist
-                for item in templist:
-                    print 3333333
-                    if not item == self.UUID:
-                        self.nodes.add_node({item:templist[item]})
-                        print 4444444
             except:
                 print 'remove %s' % node
-                self.nodes.rm_node(node)
+                if not node == 'super_node':
+                    self.nodes.rm_node(node)
+            if templist:
+                for item in templist:
+                    if item != self.UUID and item not in self.templist:
+                        print 'add:',{item:templist[item]}
+                        self.nodes.add_node({item:templist[item]})
+                        print 4444444
 
 
     def keepFind(self):
