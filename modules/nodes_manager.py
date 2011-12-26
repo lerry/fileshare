@@ -34,7 +34,7 @@ class NodeDb(object):
         with self.connect() as conn:
             cur = conn.cursor()
             cur.execute('CREATE TABLE nodelist(uuid TEXT, ip TEXT, port TEXT)')
-            cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node','192.168.1.8','1234'))
+            cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node','202.197.209.98','1234'))
             conn.commit()
 
 

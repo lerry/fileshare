@@ -3,7 +3,7 @@
 For:
 by Lerry  http://lerry.org
 Start from 2011/07/03 21:57:56
-Last edit at 2011/07/03
+Last edit at 2011/12/26
 '''
 import time
 try:
@@ -17,7 +17,7 @@ from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
 from modules import utils
 from modules.nodes_manager import NodeDb
-
+import config
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
@@ -103,7 +103,7 @@ class Node(object):
 
 
 def main():
-    n = Node(1234, 'nodes.db', utils.get_uuid())
+    n = Node(1234, 'nodes.db', config.UUID)
     n._start()
 
 

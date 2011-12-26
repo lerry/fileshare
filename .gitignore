@@ -1,5 +1,6 @@
 *.pyc
 *.db
+*.db1
 temp.py
 nodelist.dat
-/sessions
+config.ini
