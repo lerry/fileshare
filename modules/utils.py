@@ -23,9 +23,9 @@ def get_ip():
         return socket.gethostbyname(socket.gethostname())
 
 
-    def get_super_nodes():
-        super_nodes = ['202.197.209.98']
-        return super_nodes
+def get_super_nodes():
+    super_nodes = ['202.197.209.98']
+    return super_nodes
 
 
 def get_uuid():
