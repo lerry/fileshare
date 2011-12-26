@@ -8,6 +8,7 @@ Last edit at 2011/12/26
 import os
 import uuid
 from ConfigParser import ConfigParser
+import utils
 
 class ConfigManager(object):
     def __init__(self, config_file):
@@ -24,7 +25,7 @@ class ConfigManager(object):
         config = ConfigParser()
         config.add_section('global')
         config.set('global','port',1234)
-        config.set('global','uuid',uuid.uuid4().get_hex())
+        config.set('global','uuid',utils.get_uuid())
         config.set('global','ttl',5)
         config.write(open(self.config_file,'w'))
 
