@@ -6,12 +6,13 @@ by Lerry  http://lerry.org
 Start from 2011-12-21 17:49
 Last edit at 2011-12-21 17:49
 '''
+import config
 from core import Node
 from modules import utils
 
 
 def main():
-    n = Node(1234, utils.load_nodelist(), utils.get_uuid())
+    n = Node(1234, 'nodes.db', config.UUID)
     n._start()
 
 

@@ -5,6 +5,8 @@ by Lerry  http://lerry.org
 Start from 2011/07/03 21:57:56
 Last edit at 2011/12/26
 '''
+import sys
+import socket
 import time
 try:
     import cPickle as pickle
@@ -17,7 +19,6 @@ from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
 from modules import utils
 from modules.nodes_manager import NodeDb
-import config
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
@@ -81,7 +82,32 @@ class Node(object):
             #break
             print 'nodes:',self.nodes.get_list()
             self._greeting()
+            self._broadcast()
             time.sleep(5)
+
+    def _broadcast_listener(self):
+        host = ''
+        port = config.UDP_PORT
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        s.bind((host, port))
+
+        while 1:
+            try:
+                message, address = s.recvfrom(8192)
+                print "Got data from", address, message
+            except:
+                raise
+
+
+    def _broadcast(self):
+        dest = ('<broadcast>',config.UDP_PORT)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        s.sendto('sun_p2p %s %s %s' % (self.UUID, self.ip, self.port), dest)
+
+
 
     def hello(self,info):
         '''
@@ -94,10 +120,13 @@ class Node(object):
         return pickle.dumps(self.nodes.get_list())
 
     def _start(self):
-        t = Thread(target=self.keepFind)
-        t.setDaemon(1)
+        t = Thread(target=self._broadcast_listener)
+        #t.setDaemon(1)
+        t1 = Thread(target=self.keepFind)
+        #t1.setDaemon(1)
         t.start()
-        s = ThreadXMLRPCServer(('',self.port))
+        t1.start()
+        s = ThreadXMLRPCServer(('',self.port))#,logRequests=False
         s.register_instance(self)
         s.serve_forever()
 
