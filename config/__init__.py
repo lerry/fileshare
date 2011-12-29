@@ -14,9 +14,8 @@ Start from 2011/07/27 22:42:06
 Last edit at 2011/12/26
 '''
 import os
-import uuid
 from ConfigParser import ConfigParser
-import utils
+from modules import utils
 
 class ConfigManager(object):
     def __init__(self, config_file):
@@ -36,10 +35,8 @@ class ConfigManager(object):
         config.set('global','udp_port',52724)
         config.set('global','uuid',utils.get_uuid())
         config.set('global','ttl',5)
+        config.set('global','sign','sun_p2p')
         config.write(open(self.config_file,'w'))
-
-    def get_uuid(self):
-        return self.config.get('global','uuid')
 
     def get(self, key):
         return self.config.get('global',key)
@@ -50,6 +47,3 @@ class ConfigManager(object):
 
 config_file = 'config.ini'
 config = ConfigManager(config_file)
-
-UUID = config.get_uuid()
-UDP_PORT = config.getint('udp_port')
