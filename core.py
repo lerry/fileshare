@@ -13,6 +13,7 @@ except:
     import pickle
 from config import config
 from threading import Thread
+from Queue import Queue
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
@@ -26,16 +27,17 @@ class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     pass
 
 class Node(object):
-    def __init__(self, port, nodes_file, UUID):
+    def __init__(self, port, nodes_file, UUID, queue):
         self.port = port
         self.nodes = NodeDb(nodes_file)
         self.UUID = UUID
         self.ip = utils.get_ip()
-
+        self.q = queue
+        
     def _greeting(self):
         for node in self.templist:
             self._greet(node)
-
+            
     def _greet(self,node='', nodeinfo=''):
         if not nodeinfo:
             #nodeinfo = self.nodes.get_list()[node]
@@ -69,6 +71,8 @@ class Node(object):
             print 'nodes:',self.templist
             self._greeting()
             self._broadcast()
+            self.q.put(self.templist)
+            print 'put',self.templist
             time.sleep(5)
 
     def _broadcast_listener(self):
@@ -124,7 +128,8 @@ class Node(object):
 
 
 def main():
-    n = Node(1234, 'nodes.db', config.get('uuid'))
+    q = Queue()
+    n = Node(1234, 'nodes.db', config.get('uuid'), q)
     n._start()
 
 
