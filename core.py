@@ -33,11 +33,12 @@ class Node(object):
         self.UUID = UUID
         self.ip = utils.get_ip()
         self.q = queue
-        
+        self.templist = self.nodes.get_list()
+
     def _greeting(self):
         for node in self.templist:
             self._greet(node)
-            
+
     def _greet(self,node='', nodeinfo=''):
         if not nodeinfo:
             #nodeinfo = self.nodes.get_list()[node]
@@ -64,15 +65,13 @@ class Node(object):
         '''
         maintain a node list
         '''
-        time.sleep(2)
+        #time.sleep(1)
         while 1:
             #break
             self.templist = self.nodes.get_list()
             print 'nodes:',self.templist
             self._greeting()
             self._broadcast()
-            self.q.put(self.templist)
-            print 'put',self.templist
             time.sleep(5)
 
     def _broadcast_listener(self):
@@ -103,7 +102,13 @@ class Node(object):
         except:
             pass
 
-
+    def _task_manager(self):
+        while True:
+            if not self.q.full():
+                self.q.put(self.templist)
+                print 'Put task',self.templist
+                self.q.join()
+            #time.sleep(1)
 
     def hello(self,info):
         '''
@@ -116,12 +121,12 @@ class Node(object):
         return pickle.dumps(self.nodes.get_list())
 
     def _start(self):
-        t = Thread(target=self._broadcast_listener)
-        t.setDaemon(1)
-        t1 = Thread(target=self.keepFind)
-        t1.setDaemon(1)
-        t.start()
-        t1.start()
+        for mythread in (self._broadcast_listener,
+                         self.keepFind,
+                         self._task_manager):
+            t = Thread(target=mythread)
+            t.setDaemon(1)
+            t.start()
         s = ThreadXMLRPCServer(('',self.port))#,logRequests=False
         s.register_instance(self)
         s.serve_forever()

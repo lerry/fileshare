@@ -18,7 +18,6 @@ class NodeDb(object):
         self.db_file = dbfile
         if os.path.isfile(dbfile):
             pass
-            #self._initdb()
         else:
             self._initdb()
 
