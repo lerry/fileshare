@@ -48,7 +48,7 @@ class Demo(QtGui.QMainWindow):
     def update_list(self, list):
         listItem = []
         for lst in list:
-            listItem.append(QtGui.QListWidgetItem(lst))
+            listItem.append(QtGui.QListWidgetItem(lst+str(list[lst])))
         self.ui.list.clear()
         for i in range(len(listItem)):
             self.ui.list.insertItem(i+1,listItem[i])

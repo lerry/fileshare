@@ -72,7 +72,7 @@ class Node(object):
             print 'nodes:',self.templist
             self._greeting()
             self._broadcast()
-            time.sleep(5)
+            time.sleep(1)
 
     def _broadcast_listener(self):
         host = ''
