@@ -39,7 +39,7 @@ class Demo(QtGui.QMainWindow):
 
     def get_queue(self):
         while 1:
-            time.sleep(1)
+            time.sleep(0.8)
             if not self.q.empty():
                 #print 'Get task:',self.q.get()
                 self.update_list(self.q.get())

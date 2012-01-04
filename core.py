@@ -65,7 +65,6 @@ class Node(object):
         '''
         maintain a node list
         '''
-        #time.sleep(1)
         while 1:
             #break
             self.templist = self.nodes.get_list()
@@ -108,7 +107,6 @@ class Node(object):
                 self.q.put(self.templist)
                 print 'Put task',self.templist
                 self.q.join()
-            #time.sleep(1)
 
     def hello(self,info):
         '''
