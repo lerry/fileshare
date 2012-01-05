@@ -3,5 +3,5 @@
 *.db1
 temp.py
 ui_main.py
-nodelist.dat
 config.ini
+/build
