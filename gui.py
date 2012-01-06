@@ -22,20 +22,18 @@ def main(q):
 
 class Demo(QtGui.QMainWindow):
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtGui.QMainWindow.__init__(self, parent)
         self.ui = Ui_form()
         self.ui.setupUi(self)
         self.q = Queue(1)
-        #core = Process(target=main, args=(q,))
         core = Thread(target=main, args=(self.q,))
-        core.setDaemon(1)
-        core.start()
-
-        self.ui.list.setSortingEnabled(1)
-        #self.update_list()
         t = Thread(target=self.get_queue)
+        core.setDaemon(1)
         t.setDaemon(1)
+        core.start()
         t.start()
+        self.ui.list.setSortingEnabled(1)
+
 
     def get_queue(self):
         while 1:
