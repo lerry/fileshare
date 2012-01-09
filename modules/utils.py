@@ -7,8 +7,10 @@ Start from 2011-12-21 18:05
 Last edit at 2011-12-21 18:05
 '''
 import os
+import hashlib
 import uuid
 import socket
+import platform
 from socket import SOCK_DGRAM, AF_INET
 from os.path import join
 
@@ -23,6 +25,12 @@ def get_ip():
     except:
         return socket.gethostbyname(socket.gethostname())
 
+def get_code():
+    p = platform.uname()[0]
+    if p == 'Windows':
+        return 'gbk'
+    else:
+        return 'utf-8'
 
 def get_super_nodes():
     super_nodes = ['202.197.209.98']
@@ -48,11 +56,24 @@ def get_filelist(folder):
     file_list = []
     for root,dirs,files in os.walk(folder):
         for name in files:
-            file_list.append(os.path.abspath(join(root, name)))
+            file_list.append(os.path.abspath(join(root, name).decode(get_code())))
     return file_list
+
+def get_hash(filePath):
+    fh = open(filePath, 'rb')
+    m = hashlib.sha1()
+    while True:
+        data = fh.read(1024**2)
+        if not data:
+            break
+        m.update(data)
+    return m.hexdigest()
+
 
 if __name__ == '__main__':
     print get_ip()
     print get_uuid()
+    print get_code()
+    print get_filelist('/home/public/PDFs')
     print is_sqlite('test.db')
     print is_sqlite('../nodes.db')

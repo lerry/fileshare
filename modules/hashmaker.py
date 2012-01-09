@@ -8,7 +8,6 @@ Last edit at 2012-01-07 11:35
 '''
 import os
 import sqlite3
-import hashlib
 import utils
 
 
@@ -41,7 +40,8 @@ class HashMaker(object):
             size = os.path.getsize(name)
         except:
             size = 0 #if file not exists or have no right
-        self.cur.execute("SELECT * FROM hash_table WHERE path='%s' AND size='%s'" % (name, size))
+        print name.encode('utf-8')
+        self.cur.execute('''SELECT * FROM hash_table WHERE path="%s" AND size="%s"''' % (name, size))
         result = self.cur.fetchall()
         if result:
             return True
@@ -50,20 +50,21 @@ class HashMaker(object):
 
     def add(self, name, many=False):
         '''add new file info to db'''
-        hash_value = hashlib.sha1(open(name,'rb').read()).hexdigest()
+        hash_value = utils.get_hash(name)
         size = os.path.getsize(name)
         #print hash_value
         try:
             self.cur.execute('INSERT INTO hash_table VALUES (?,?,?)',(hash_value, name, size))
+            if not many:
+                self.conn.commit()
         except:
             pass
+
+    def rm(self, name, many=False):
+        '''remove info of files which are not already exists'''
+        self.cur.execute('''DELETE FROM hash_table WHERE path="%s"''' % name)
         if not many:
             self.conn.commit()
-
-    def rm(self, name):
-        '''remove info of files which are not already exists'''
-        self.cur.execute('DELETE FROM hash_table WHERE path="%s"' % name)
-        self.conn.commit()
 
     def update_db(self):
         '''scan the whole folder and update db'''
@@ -77,16 +78,20 @@ class HashMaker(object):
         #remove file which not exists
         self.cur.execute('SELECT path FROM hash_table')
         result = self.cur.fetchall()
+        #print result
         for name in result:
-            if not os.path.isfile(name[0]):
-                self.rm(name)
+            if not os.path.isfile(name[0]) or name[0] not in file_list:
+                #print name
+                self.rm(name, many=True)
+        self.conn.commit()
 
     def close(self):
         self.conn.close()
 
 
 if __name__ == "__main__":
-    test = HashMaker('/dev/shm/fileshare/','test.db')
+    test = HashMaker('/home/public/音乐/','/home/public/test.db')
     print test.has_file('/dev/shm/fileshare/core.py')
     test.close()
-    os.remove('test.db')
+    #os.remove('test.db')
+    #print os.listdir('/home/public/编程工具/')
