@@ -7,6 +7,7 @@ Start from 2012-01-07 11:35
 Last edit at 2012-01-07 11:35
 '''
 import os
+#import time
 import sqlite3
 import utils
 
@@ -23,7 +24,7 @@ class HashMaker(object):
         else:
             self.connect()
 
-        self.update_db()
+        #self.update()
 
     def _init(self):
         self.connect()
@@ -66,13 +67,14 @@ class HashMaker(object):
         if not many:
             self.conn.commit()
 
-    def update_db(self):
+    def update(self):
         '''scan the whole folder and update db'''
         #add new file
         file_list = utils.get_filelist(self.folder)
         for name in file_list:
             if not self.has_file(name):
                 self.add(name,many=True)
+                #time.sleep(1)
         self.conn.commit()
 
         #remove file which not exists
@@ -81,7 +83,7 @@ class HashMaker(object):
         #print result
         for name in result:
             if not os.path.isfile(name[0]) or name[0] not in file_list:
-                #print name
+                print name,'will be removed'
                 self.rm(name, many=True)
         self.conn.commit()
 
@@ -90,7 +92,8 @@ class HashMaker(object):
 
 
 if __name__ == "__main__":
-    test = HashMaker('/home/public/音乐/','/home/public/test.db')
+    test = HashMaker('/home/public/Pictures','/dev/shm/test.db')
+    test.update()
     print test.has_file('/dev/shm/fileshare/core.py')
     test.close()
     #os.remove('test.db')

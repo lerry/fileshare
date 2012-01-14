@@ -60,6 +60,7 @@ def get_filelist(folder):
     return file_list
 
 def get_hash(filePath):
+    '''Do not put the whole file in memory'''
     fh = open(filePath, 'rb')
     m = hashlib.sha1()
     while True:

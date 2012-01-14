@@ -19,6 +19,7 @@ from xmlrpclib import ServerProxy
 from SocketServer import ThreadingMixIn
 from modules import utils
 from modules.nodes_manager import NodeDb
+from modules.hashmaker import HashMaker
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
@@ -34,6 +35,7 @@ class Node(object):
         self.ip = utils.get_ip()
         self.q = queue
         self.templist = self.nodes.get_list()
+        self.hash = HashMaker('/home/public/Pictures','hash.db')
 
     def _greeting(self):
         for node in self.templist:
@@ -120,8 +122,9 @@ class Node(object):
 
     def _start(self):
         for mythread in (self._broadcast_listener,
-                         self.keepFind,
-                         self._task_manager):
+                                             self.keepFind,
+                                             self._task_manager,
+                                             self.hash.update):
             t = Thread(target=mythread)
             t.setDaemon(1)
             t.start()
