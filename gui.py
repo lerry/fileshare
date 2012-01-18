@@ -34,6 +34,7 @@ class Demo(QtGui.QMainWindow):
         t.start()
         self.ui.list.setSortingEnabled(1)
 
+        self.old_list = ''
 
     def get_queue(self):
         while 1:
@@ -44,6 +45,10 @@ class Demo(QtGui.QMainWindow):
                 self.q.task_done()
 
     def update_list(self, list):
+        if list == self.old_list:
+            return
+        else:
+            self.old_list = list
         listItem = []
         for lst in list:
             listItem.append(QtGui.QListWidgetItem(lst+str(list[lst])))
