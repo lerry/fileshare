@@ -6,6 +6,7 @@ by Lerry  http://lerry.org
 Start from 2011-12-29 10:29
 Last edit at 2011-12-29 10:49
 '''
+import os
 import sys
 import time
 from PyQt4 import QtCore
@@ -32,32 +33,49 @@ class Demo(QtGui.QMainWindow):
         #t.setDaemon(1)
         #core.start()
         #t.start()
+        self.init_ui()
+        self.ui.statusbar.showMessage('Ready')
 
-        #self.old_list = ''
-
+    def init_ui(self):   
         self.ui.tab.setWindowTitle('hhh')
         self.ui.tabWidget.setTabText(0, 'Resource list'.center(30))
         self.ui.tabWidget.setTabText(1, 'Download Queue'.center(30))
-        #print self.ui.splitter.sizes()
-        self.ui.splitter.setSizes([30,200])
+        #print self.ui.horizontalLayout.sizes()
+        #self.ui.horizontalLayout.setSizes([30,200])
+        self.ui.horizontalLayout.addStretch(1)
 
         self.ui.tree.setColumnCount(1)
         self.ui.tree.setHeaderLabels(['Nodes'.center(30),]) 
-        
+        root = QtGui.QTreeWidgetItem(self.ui.tree)      
+        root.setText(0,'Local')
+        folders, files = self.get_file_list()
+        for i in folders:
+            child = QtGui.QTreeWidgetItem(root)
+            child.setText(0,i)  
+
         title_list = ['Name','size','type','time']
-
-        #self.ui.table.setRowCount(10)
         self.ui.table.setColumnCount(4)
+        self.ui.table.setRowCount(len(files))
         self.ui.table.setHorizontalHeaderLabels(title_list)
-        #for i in title_list:
-         #   self.ui.list.insertItem(title_list.index(i), QtGui.QListWidgetItem(i))
-           
+        for n, i in enumerate(files):
+            item = QtGui.QTableWidgetItem(i)
+            #print n
+            self.ui.table.setItem(n, 0, item)    
 
+    def get_file_list(self):
+        folder_path = '/dev/shm/'    
+        temp_list = os.listdir(folder_path)
+        folder_list = []
+        file_list = []
+        for i in temp_list:
+            full_path = os.path.join(folder_path, i)
+            if os.path.isdir(full_path):
+                folder_list.append(i)
+            elif os.path.isfile(full_path):
+               file_list.append(i)    
+        return (folder_list, file_list)
         '''
-             self.table.setRowCount(10)
-    self.table.setColumnCount(6)
-     self.table.setHorizontalHeaderLabels(['SUN','MON','TUE','WED',
-                                              'THU','FIR','SAT'])
+        enumerate(file_list)
 
         self.tree.setColumnCount(2)
         self.tree.setHeaderLabels(['Key','Value'])
