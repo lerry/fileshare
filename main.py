@@ -17,9 +17,42 @@ from ui_main import Ui_main
 from core import Node
 from config import config
 
-def main(q):
-    n = Node(1234, 'nodes.db', config.get('uuid'), q)
-    n._start()
+#def main(q):
+#    n = Node(1234, 'nodes.db', config.get('uuid'), q)
+#    n._start()
+
+class App(QtGui.QMainWindow):
+    def __init__(self, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
+        
+        x, y, w, h = 500, 200, 640, 480
+        self.setGeometry(x, y, w, h)
+        print self.width()
+        print self.height()
+        self.setWindowTitle('main')
+
+        self.status = self.statusBar()
+        self.tree = QtGui.QTreeWidget()
+        self.table = QtGui.QTableWidget(5,4)
+        self.tab = QtGui.QTabWidget(self)
+
+        self.splitter = QtGui.QSplitter()
+        self.splitter.addWidget(self.tree)
+        self.splitter.addWidget(self.table)
+        #self.splitter.addWidget(self.tab)
+
+        self.splitter.setSizes([30, 120])
+        self.tab.addTab(self.splitter, 'main')
+        self.tab.addTab(QtGui.QTextEdit(), 'text')
+        self.tab.setTabText(0, 'Resource list'.center(30))
+        self.tab.setTabText(1, 'Download Queue'.center(30))
+
+        self.setCentralWidget(self.tab)
+
+        self.status.showMessage('Hi')
+
+
+        ''' grid = QtGui.QGridLayout()'''
 
 class Demo(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -38,8 +71,7 @@ class Demo(QtGui.QMainWindow):
 
     def init_ui(self):   
         self.ui.tab.setWindowTitle('hhh')
-        self.ui.tabWidget.setTabText(0, 'Resource list'.center(30))
-        self.ui.tabWidget.setTabText(1, 'Download Queue'.center(30))
+
         #print self.ui.horizontalLayout.sizes()
         #self.ui.horizontalLayout.setSizes([30,200])
         self.ui.horizontalLayout.addStretch(1)
@@ -119,6 +151,6 @@ class Demo(QtGui.QMainWindow):
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-    demo = Demo()
+    demo = App()
     demo.show()
     sys.exit(app.exec_())
