@@ -25,7 +25,7 @@ class App(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         
-        x, y, w, h = 500, 200, 640, 480
+        x, y, w, h = 500, 200, 660, 480
         self.setGeometry(x, y, w, h)
         print self.width()
         print self.height()
@@ -51,34 +51,9 @@ class App(QtGui.QMainWindow):
 
         self.status.showMessage('Hi')
 
-
-        ''' grid = QtGui.QGridLayout()'''
-
-class Demo(QtGui.QMainWindow):
-    def __init__(self, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
-        self.ui = Ui_main()
-        self.ui.setupUi(self)
-        #self.q = Queue(1)
-        #core = Thread(target=main, args=(self.q,))
-        #t = Thread(target=self.get_queue)
-        #core.setDaemon(1)
-        #t.setDaemon(1)
-        #core.start()
-        #t.start()
-        self.init_ui()
-        self.ui.statusbar.showMessage('Ready')
-
-    def init_ui(self):   
-        self.ui.tab.setWindowTitle('hhh')
-
-        #print self.ui.horizontalLayout.sizes()
-        #self.ui.horizontalLayout.setSizes([30,200])
-        self.ui.horizontalLayout.addStretch(1)
-
-        self.ui.tree.setColumnCount(1)
-        self.ui.tree.setHeaderLabels(['Nodes'.center(30),]) 
-        root = QtGui.QTreeWidgetItem(self.ui.tree)      
+        self.tree.setColumnCount(1)
+        self.tree.setHeaderLabels(['Nodes'.center(30),]) 
+        root = QtGui.QTreeWidgetItem(self.tree)      
         root.setText(0,'Local')
         folders, files = self.get_file_list()
         for i in folders:
@@ -86,13 +61,19 @@ class Demo(QtGui.QMainWindow):
             child.setText(0,i)  
 
         title_list = ['Name','size','type','time']
-        self.ui.table.setColumnCount(4)
-        self.ui.table.setRowCount(len(files))
-        self.ui.table.setHorizontalHeaderLabels(title_list)
+        self.table.setColumnCount(4)
+        self.table.setRowCount(len(files))
+        self.table.setHorizontalHeaderLabels(title_list)
         for n, i in enumerate(files):
             item = QtGui.QTableWidgetItem(i)
             #print n
-            self.ui.table.setItem(n, 0, item)    
+            self.table.setItem(n, 0, item)    
+    
+    def get_detail(self, file_path):
+        f_size = os.path.getsize(file_path)
+        f_type = 'file' 
+        f_time = '' 
+        return (f_size, f_type, f_time)      
 
     def get_file_list(self):
         folder_path = '/dev/shm/'    
@@ -106,6 +87,33 @@ class Demo(QtGui.QMainWindow):
             elif os.path.isfile(full_path):
                file_list.append(i)    
         return (folder_list, file_list)
+
+
+        ''' grid = QtGui.QGridLayout()'''
+
+class Demo(QtGui.QMainWindow):
+    def __init__(self, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
+        self.ui = Ui_main()
+        self.setupUi(self)
+        #self.q = Queue(1)
+        #core = Thread(target=main, args=(self.q,))
+        #t = Thread(target=self.get_queue)
+        #core.setDaemon(1)
+        #t.setDaemon(1)
+        #core.start()
+        #t.start()
+        self.init_ui()
+        self.statusbar.showMessage('Ready')
+
+    def init_ui(self):   
+        self.tab.setWindowTitle('hhh')
+
+        #print self.horizontalLayout.sizes()
+        #self.horizontalLayout.setSizes([30,200])
+        self.horizontalLayout.addStretch(1)
+
+        
         '''
         enumerate(file_list)
 
@@ -145,9 +153,9 @@ class Demo(QtGui.QMainWindow):
         listItem = []
         for lst in list:
             listItem.append(QtGui.QListWidgetItem(lst+str(list[lst])))
-        self.ui.list.clear()
+        self.list.clear()
         for i in range(len(listItem)):
-            self.ui.list.insertItem(i+1,listItem[i])
+            self.list.insertItem(i+1,listItem[i])
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
