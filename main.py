@@ -50,26 +50,27 @@ class App(QtGui.QMainWindow):
 
         self.status.showMessage('Hi')
 
+        sPath = QtCore.QString('/home/lerry/')
 
         self.dirmodel = QtGui.QFileSystemModel()
-        self.dirmodel.setRootPath(QtCore.QString('/home/lerry/'))
+        
         self.dirmodel.setFilter(QtCore.QDir.AllDirs | QtCore.QDir.NoDotAndDotDot)
         self.tree.setModel(self.dirmodel)
-
-        sPath = QtCore.QString('/home/lerry')
+        self.tree.setRootIndex(self.dirmodel.setRootPath(sPath)) 
 
         self.filemodel = QtGui.QFileSystemModel()
         self.filemodel.setFilter(QtCore.QDir.Files | QtCore.QDir.NoDotAndDotDot)
         self.filemodel.setRootPath(sPath)
         #self.ui.listView.setRootIndex(self.filemodel.setRootPath(QtCore.QString('/home/lerry')))
         self.list.setModel(self.filemodel)
+        self.list.setRootIndex(self.filemodel.setRootPath(sPath)) 
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL("clicked(QModelIndex)"), self.update)
 
     #@pyqtSignature("QModelIndex") #declares signals to other components:
     def update(self, index):
         sPath = self.dirmodel.fileInfo(index).absoluteFilePath()
-        print sPath
+        #print sPath
         self.list.setRootIndex(self.filemodel.setRootPath(sPath))
 
 
