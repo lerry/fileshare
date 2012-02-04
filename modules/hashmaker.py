@@ -28,7 +28,7 @@ class HashMaker(object):
 
     def _init(self):
         self.connect()
-        self.cur.execute("CREATE TABLE hash_table(hash TEXT,path TEXT,size INTEGER,UNIQUE(hash))")
+        self.cur.execute("CREATE TABLE hash_table(hash TEXT,path TEXT,size INTEGER,mtime REAL,UNIQUE(hash))")
         self.conn.commit()
 
     def connect(self):
@@ -39,10 +39,13 @@ class HashMaker(object):
         '''give full path, check if has added to db'''
         try:
             size = os.path.getsize(name)
+            mtime = os.path.getmtime(name)
         except:
             size = 0 #if file not exists or have no right
+            mtime = 0
         print name.encode('utf-8')
-        self.cur.execute('''SELECT * FROM hash_table WHERE path="%s" AND size="%s"''' % (name, size))
+        self.cur.execute('''SELECT * FROM hash_table WHERE path="%s" AND size="%s" AND mtime="%s"''' % \
+        (name, size, mtime))
         result = self.cur.fetchall()
         if result:
             return True
@@ -53,9 +56,10 @@ class HashMaker(object):
         '''add new file info to db'''
         hash_value = utils.get_hash(name)
         size = os.path.getsize(name)
+        mtime = os.path.getmtime(name)
         #print hash_value
         try:
-            self.cur.execute('INSERT INTO hash_table VALUES (?,?,?)',(hash_value, name, size))
+            self.cur.execute('INSERT INTO hash_table VALUES (?,?,?,?)',(hash_value, name, size, mtime))
             if not many:
                 self.conn.commit()
         except:
@@ -73,7 +77,7 @@ class HashMaker(object):
         file_list = utils.get_filelist(self.folder)
         for name in file_list:
             if not self.has_file(name):
-                self.add(name,many=True)
+                self.add(name,many=False)
                 #time.sleep(1)
         self.conn.commit()
 
