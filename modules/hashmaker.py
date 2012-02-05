@@ -28,7 +28,7 @@ class HashMaker(object):
 
     def _init(self):
         self.connect()
-        self.cur.execute("CREATE TABLE hash_table(hash TEXT,path TEXT,size INTEGER,mtime TEXT,UNIQUE(hash))")
+        self.cur.execute("CREATE TABLE hash_table(hash TEXT,path TEXT,size INTEGER,mtime TEXT,UNIQUE(hash,path))")
         self.conn.commit()
 
     def connect(self):
@@ -48,10 +48,10 @@ class HashMaker(object):
         (name, size, mtime))
         result = self.cur.fetchall()
         if result:
-            #print 1
+            #print result
             return True
         else:
-            #print 0
+            #print 0,size,mtime
             return False
 
     def add(self, name, many=False):
@@ -62,6 +62,7 @@ class HashMaker(object):
         #print hash_value
         try:
             self.cur.execute('INSERT INTO hash_table VALUES (?,?,?,?)',(hash_value, name, size, mtime))
+            print 'Added: ',name.encode('utf-8')
             if not many:
                 self.conn.commit()
         except:
@@ -75,22 +76,28 @@ class HashMaker(object):
 
     def update(self):
         '''scan the whole folder and update db'''
-        #add new file
         file_list = utils.get_filelist(self.folder)
-        for name in file_list:
-            if not self.has_file(name):
-                self.add(name,many=False)
-                #time.sleep(1)
+        #remove file which not exists
+        self.cur.execute('SELECT path, mtime FROM hash_table')
+        result = self.cur.fetchall()
+        for name in result:
+            try:
+                notchanged = str(name[1]) == str(os.path.getmtime(name[0]))
+            except:
+                notchanged = False    
+            print notchanged
+            if os.path.isfile(name[0]) and name[0] in file_list and notchanged:
+                pass
+            else:    
+                print 'Removed:',name[0].encode('utf-8')
+                self.rm(name[0])
         self.conn.commit()
 
-        #remove file which not exists
-        self.cur.execute('SELECT path FROM hash_table')
-        result = self.cur.fetchall()
-        #print result
-        for name in result:
-            if not os.path.isfile(name[0]) or name[0] not in file_list:
-                print name,'will be removed'
-                self.rm(name, many=True)
+        #add new file
+        for name in file_list:
+            if not self.has_file(name):
+                self.add(name)
+                #time.sleep(1)
         self.conn.commit()
 
     def close(self):
@@ -98,9 +105,9 @@ class HashMaker(object):
 
 
 if __name__ == "__main__":
-    test = HashMaker('/home/public/Pictures','/dev/shm/test.db')
+    test = HashMaker('/home/public/Pictures/test','/dev/shm/test.db')
     test.update()
-    print test.has_file('/dev/shm/fileshare/core.py')
+    #print test.has_file('/dev/shm/fileshare/core.py')
     test.close()
     #os.remove('test.db')
     #print os.listdir('/home/public/编程工具/')
