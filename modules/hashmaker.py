@@ -28,7 +28,7 @@ class HashMaker(object):
 
     def _init(self):
         self.connect()
-        self.cur.execute("CREATE TABLE hash_table(hash TEXT,path TEXT,size INTEGER,mtime REAL,UNIQUE(hash))")
+        self.cur.execute("CREATE TABLE hash_table(hash TEXT,path TEXT,size INTEGER,mtime TEXT,UNIQUE(hash))")
         self.conn.commit()
 
     def connect(self):
@@ -38,25 +38,27 @@ class HashMaker(object):
     def has_file(self, name):
         '''give full path, check if has added to db'''
         try:
-            size = os.path.getsize(name)
-            mtime = os.path.getmtime(name)
+            size = str(os.path.getsize(name))
+            mtime = str(os.path.getmtime(name))
         except:
-            size = 0 #if file not exists or have no right
-            mtime = 0
-        print name.encode('utf-8')
+            size = '' #if file not exists or have no right
+            mtime = ''
+        #print name.encode('utf-8')
         self.cur.execute('''SELECT * FROM hash_table WHERE path="%s" AND size="%s" AND mtime="%s"''' % \
         (name, size, mtime))
         result = self.cur.fetchall()
         if result:
+            #print 1
             return True
         else:
+            #print 0
             return False
 
     def add(self, name, many=False):
         '''add new file info to db'''
         hash_value = utils.get_hash(name)
-        size = os.path.getsize(name)
-        mtime = os.path.getmtime(name)
+        size = str(os.path.getsize(name))
+        mtime = str(os.path.getmtime(name))
         #print hash_value
         try:
             self.cur.execute('INSERT INTO hash_table VALUES (?,?,?,?)',(hash_value, name, size, mtime))
