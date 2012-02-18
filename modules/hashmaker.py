@@ -35,7 +35,7 @@ class HashMaker(object):
         self.conn = sqlite3.connect(self.db)
         self.cur = self.conn.cursor()
 
-    def has_file(self, name):
+    def has_file_in_db(self, name):
         '''give full path, check if has added to db'''
         try:
             size = str(os.path.getsize(name))
@@ -95,7 +95,7 @@ class HashMaker(object):
 
         #add new file
         for name in file_list:
-            if not self.has_file(name):
+            if not self.has_file_in_db(name):
                 self.add(name)
                 #time.sleep(1)
         self.conn.commit()
@@ -107,7 +107,7 @@ class HashMaker(object):
 if __name__ == "__main__":
     test = HashMaker('/home/public/Pictures/test','/dev/shm/test.db')
     test.update()
-    #print test.has_file('/dev/shm/fileshare/core.py')
+    #print test.has_file_in_db('/dev/shm/fileshare/core.py')
     test.close()
     #os.remove('test.db')
     #print os.listdir('/home/public/编程工具/')
