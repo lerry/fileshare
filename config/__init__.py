@@ -36,6 +36,7 @@ class ConfigManager(object):
         config.set('global','uuid',utils.get_uuid())
         config.set('global','ttl',5)
         config.set('global','sign','sun_p2p')
+        config.set('global','docroot','/home/public')
         config.write(open(self.config_file,'w'))
 
     def get(self, key):

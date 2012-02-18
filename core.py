@@ -20,6 +20,7 @@ from SocketServer import ThreadingMixIn
 from modules import utils
 from modules.nodes_manager import NodeDb
 from modules.hashmaker import HashMaker
+from modules.httpserver import run
 
 class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     '''
@@ -36,6 +37,27 @@ class Node(object):
         self.q = queue
         self.templist = self.nodes.get_list()
         self.hash = HashMaker('/home/public/Pictures','hash.db')
+
+    def hello(self,info):
+        '''
+        introduce yourself to other node,
+        and check if he is online
+        '''
+        if info:
+            if info[0] != self.UUID:
+                self.nodes.add_node(info)
+        return pickle.dumps(self.nodes.get_list())
+
+    def ping(self):
+        '''check if a node is online'''
+        return 'PONG'    
+
+    def find_value(self, value):
+        '''check if has the file with the given hash value'''
+        if self.hash.has_value(value):
+            return True
+        else:
+            return False        
 
     def _greeting(self):
         for node in self.templist:
@@ -93,7 +115,6 @@ class Node(object):
             except:
                 raise
 
-
     def _broadcast(self):
         dest = ('<broadcast>',config.getint('udp_port'))
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -103,22 +124,15 @@ class Node(object):
         except:
             pass
 
+    def _start_http_server(self):
+        run(doc_root = config.get('docroot'))        
+
     def _task_manager(self):
         while True:
             if not self.q.full():
                 self.q.put(self.templist)
                 print 'Put task',self.templist
                 self.q.join()
-
-    def hello(self,info):
-        '''
-        introduce yourself to other node,
-        and check if he is online
-        '''
-        if info:
-            if info[0] != self.UUID:
-                self.nodes.add_node(info)
-        return pickle.dumps(self.nodes.get_list())
 
     def update_hash(self):
         '''update file hash when startup'''    
@@ -128,9 +142,10 @@ class Node(object):
 
     def _start(self):
         for mythread in (self._broadcast_listener,
-                                             self.keepFind,
-                                             self._task_manager,
+                                             #self.keepFind,
+                                             #self._task_manager,
                                              self.update_hash,
+                                             self._start_http_server()
                                             ):
             t = Thread(target=mythread)
             t.setDaemon(1)
