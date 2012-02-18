@@ -35,6 +35,15 @@ class HashMaker(object):
         self.conn = sqlite3.connect(self.db)
         self.cur = self.conn.cursor()
 
+    def has_file(self, hash_value):
+        '''check if there is a file with the given hash value'''
+        self.cur.execute('''SELECT * FROM hash_table WHERE hash="%s"''' % hash_value)
+        result = self.cur.fetchall()    
+        if result:
+            return True
+        else:
+            return False    
+
     def has_file_in_db(self, name):
         '''give full path, check if has added to db'''
         try:
@@ -85,7 +94,7 @@ class HashMaker(object):
                 notchanged = str(name[1]) == str(os.path.getmtime(name[0]))
             except:
                 notchanged = False    
-            print notchanged
+            #print notchanged
             if os.path.isfile(name[0]) and name[0] in file_list and notchanged:
                 pass
             else:    
@@ -105,9 +114,10 @@ class HashMaker(object):
 
 
 if __name__ == "__main__":
-    test = HashMaker('/home/public/Pictures/test','/dev/shm/test.db')
+    test = HashMaker('/home/public/Pictures','/dev/shm/test.db')
     test.update()
-    #print test.has_file_in_db('/dev/shm/fileshare/core.py')
+    print test.has_file_in_db('/dev/shm/fileshare/core.py')
+    print test.has_file('90b00f01eb3120e1d713beb2930698bc05bacc81')
     test.close()
-    #os.remove('test.db')
+    #os.remove('/dev/shm/test.db')
     #print os.listdir('/home/public/编程工具/')
