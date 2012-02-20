@@ -70,11 +70,20 @@ def get_hash(filePath):
         m.update(data)
     return m.hexdigest()
 
+def get_free_port(port=52724):
+    '''check if the given port is in use, return a new port''' 
+    sockobj = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    try:
+        sockobj.bind(('0.0.0.0', port))
+        return port
+    except:
+        return get_free_port(port+1)
+            
 
 if __name__ == '__main__':
     print get_ip()
     print get_uuid()
     print get_code()
-    print get_filelist('/home/public/PDFs')
-    print is_sqlite('test.db')
+    print get_filelist('/dev/shm')
     print is_sqlite('../nodes.db')
+    print get_free_port(8080)
