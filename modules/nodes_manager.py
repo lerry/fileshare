@@ -8,7 +8,7 @@ Last edit at 2011-12-23 23:41
 '''
 import os
 import sqlite3
-
+from utils import get_super_nodes
 
 class NodeDb(object):
     '''
@@ -33,7 +33,10 @@ class NodeDb(object):
         with self.connect() as conn:
             cur = conn.cursor()
             cur.execute('CREATE TABLE nodelist(uuid TEXT, ip TEXT, port TEXT)')
-            cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node','202.197.209.98 ','1234'))
+            nodes_list = get_super_nodes()
+            for i in nodes_list:
+                ip, port = i, nodes_list[i] 
+            cur.execute('INSERT INTO nodelist VALUES(?,?,?)', ('super_node',str(ip),str(port)))
             conn.commit()
 
 

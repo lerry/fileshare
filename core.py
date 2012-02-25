@@ -36,7 +36,7 @@ class Node(object):
         self.ip = utils.get_ip()
         self.q = queue
         self.templist = self.nodes.get_list()
-        self.hash = HashMaker('/home/public/Pictures','hash.db')
+        self.hash = HashMaker(config.get('docroot'),'hash.db')
 
     def hello(self,info):
         '''
@@ -136,16 +136,16 @@ class Node(object):
 
     def update_hash(self):
         '''update file hash when startup'''    
-        hash = HashMaker('/home/public/Pictures','hash.db')
+        hash = HashMaker(config.get('docroot'),'hash.db')
         hash.update()
         hash.close()
 
     def _start(self):
         for mythread in (self._broadcast_listener,
-                                             #self.keepFind,
+                                             self.keepFind,
                                              #self._task_manager,
                                              self.update_hash,
-                                             self._start_http_server()
+                                             self._start_http_server
                                             ):
             t = Thread(target=mythread)
             t.setDaemon(1)
