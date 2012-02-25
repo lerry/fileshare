@@ -68,7 +68,8 @@ class Node(object):
             #nodeinfo = self.nodes.get_list()[node]
             nodeinfo = self.templist[node]
         if nodeinfo:
-            #print 'ss',nodeinfo
+            if nodeinfo[0] == self.ip:
+                return 
             s = ServerProxy(('http://'+nodeinfo[0]+':'+nodeinfo[1]))
             templist = {}
             try:
