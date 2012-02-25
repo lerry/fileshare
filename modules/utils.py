@@ -32,11 +32,6 @@ def get_code():
     else:
         return 'utf-8'
 
-def get_super_nodes():
-    super_nodes = ['202.197.209.98']
-    return super_nodes
-
-
 def get_uuid():
     if get_ip() not in get_super_nodes():
         return uuid.uuid4().get_hex()
