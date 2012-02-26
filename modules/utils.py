@@ -14,6 +14,20 @@ import platform
 from socket import SOCK_DGRAM, AF_INET
 from os.path import join
 
+
+def fpath2url(fpath, froot):
+    #'/root/path/123.mp3' '/root' >>>'/path/123.mp3'
+    #'C:\\Downlaod\\test\\123.mp3' 'C:\\Download'>>>'/test/123.mp3'
+    if '/' in fpath:
+        sep = '/'
+    elif '\\' in fpath:
+        sep = '\\'
+    else:
+        sep = os.sep    
+
+    temp = fpath.strip(froot).split(sep)
+    return '/'+'/'.join(temp)
+
 def get_ip():
     '''
     get local ip address
@@ -86,3 +100,5 @@ if __name__ == '__main__':
     print get_filelist('/dev/shm')
     print is_sqlite('../nodes.db')
     print get_free_port(8080)
+    print fpath2url('/root/path/123.mp3', '/root') =='/path/123.mp3'
+    print fpath2url('C:\\Downlaod\\test\\123.mp3', 'C:\\Download\\') == '/test/123.mp3'
