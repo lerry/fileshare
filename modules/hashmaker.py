@@ -40,12 +40,12 @@ class HashMaker(object):
         self.cur.execute('''SELECT * FROM hash_table WHERE hash="%s"''' % hash_value)
         result = self.cur.fetchall()    
         if result:
-            return True
+            return result[0][1]
         else:
             return False    
 
     def has_file_in_db(self, name):
-        '''give full path, check if has added to db'''
+        '''give full path, check if has added to db, if so, return file path'''
         try:
             size = str(os.path.getsize(name))
             mtime = str(os.path.getmtime(name))
