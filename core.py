@@ -30,10 +30,11 @@ class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
 
 class Node(object):
     def __init__(self, port, nodes_file, UUID, queue):
-        self.port = port
+        self.port = utils.get_free_port(port)
         self.nodes = NodeDb(nodes_file)
         self.UUID = UUID
         self.ip = utils.get_ip()
+        self.http_port = utils.get_free_port(8080)
         self.q = queue
         self.templist = self.nodes.get_list()
         self.hash = HashMaker(config.get('docroot'),'hash.db')
@@ -54,13 +55,14 @@ class Node(object):
 
     def find_value(self, value):
         '''check if has the file with the given hash value'''
-        if self.hash.has_value(value):
-            return True
+        fpath = self.hash.has_value(value)
+        if fpath:
+            return 'http://'+self.ip+':'+str(self.http_port)+utils.fpath2url(fpath, config.get('docroot'))
         else:
             return False        
 
     def _greeting(self):
-        for node in self.templist:
+        for node in self.templist.copy():
             self._greet(node)
 
     def _greet(self,node='', nodeinfo=''):
@@ -93,7 +95,7 @@ class Node(object):
         while 1:
             #break
             self.templist = self.nodes.get_list()
-            print 'nodes:',self.templist
+            #print 'nodes:',self.templist
             self._greeting()
             self._broadcast()
             time.sleep(1)
@@ -126,7 +128,8 @@ class Node(object):
             pass
 
     def _start_http_server(self):
-        run(doc_root = config.get('docroot'))        
+        #start http server provide file download
+        run(self.http_port, config.get('docroot'))        
 
     def _task_manager(self):
         while True:
@@ -137,9 +140,7 @@ class Node(object):
 
     def update_hash(self):
         '''update file hash when startup'''    
-        hash = HashMaker(config.get('docroot'),'hash.db')
-        hash.update()
-        hash.close()
+        self.hash.update()
 
     def _start(self):
         for mythread in (self._broadcast_listener,
@@ -152,6 +153,7 @@ class Node(object):
             t.setDaemon(1)
             t.start()
         s = ThreadXMLRPCServer(('',self.port))#,logRequests=False
+        print 'Main thread started at port: ',self.port
         s.register_instance(self)
         s.serve_forever()
 
