@@ -18,6 +18,8 @@ from os.path import join
 def fpath2url(fpath, froot):
     #'/root/path/123.mp3' '/root' >>>'/path/123.mp3'
     #'C:\\Downlaod\\test\\123.mp3' 'C:\\Download'>>>'/test/123.mp3'
+    code = get_code()
+    #froot = froot.decode(code)
     if '/' in fpath:
         sep = '/'
     elif '\\' in fpath:
@@ -26,7 +28,7 @@ def fpath2url(fpath, froot):
         sep = os.sep    
 
     temp = fpath.strip(froot).split(sep)
-    return '/'+'/'.join(temp)
+    return ('/'+'/'.join(temp)).decode(get_code())
 
 def get_ip():
     '''
@@ -100,5 +102,6 @@ if __name__ == '__main__':
     print get_filelist('/dev/shm')
     print is_sqlite('../nodes.db')
     print get_free_port(8080)
+    print fpath2url('C:\\Downlaod\\你妹\\123.mp3', 'C:\\Download\\')
     print fpath2url('/root/path/123.mp3', '/root') =='/path/123.mp3'
     print fpath2url('C:\\Downlaod\\test\\123.mp3', 'C:\\Download\\') == '/test/123.mp3'
