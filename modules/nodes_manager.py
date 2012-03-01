@@ -58,10 +58,10 @@ class NodeDb(object):
         if self.changed:
             self.get_list()
         if info[0] in self.nodelist and (info[1], info[2]) == self.nodelist[info[0]]:
-            print '111'
+            #print '111'
             return True
         else:
-            print '222'
+            #print '222'
             return False    
 
     def get_list(self):
@@ -69,16 +69,17 @@ class NodeDb(object):
         return nodelist as a dictionary
         {'uuid':('192.168.1.8':'1234')}
         '''
-        print 'safsa',self.nodelist
+        #print 'safsa',self.nodelist
         #if not changed, return self.nodelist else update first
         if not self.changed:
-            print 'not changed'
+            #print 'not changed'
             return self.nodelist
         with self.connect() as conn:
             cur = conn.cursor()
             cur.execute('SELECT * FROM nodelist')
             conn.commit()
             result = cur.fetchall()
+            self.nodelist = {}
             for item in result:
                 self.nodelist[item[0]] = item[1:]
             self.changed = False  
