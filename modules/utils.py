@@ -94,14 +94,29 @@ def get_free_port(port=52724):
     except:
         return get_free_port(port+1)
             
+def bytes2size(bytes):
+    if bytes >= 1024**4:
+        return '%.2f' % float(bytes/1024**4.)+'TB'
+    if bytes >= 1024**3:
+        return '%.2f' % float(bytes/1024**3.)+'GB'
+    if bytes >= 1024**2:
+        return '%.2f' % float(bytes/1024**2.)+'MB'
+    if bytes >= 1024:
+        return '%.2f' % float(bytes/1024.)+'KB'
+    else:
+        return str('%.2f' % bytes)+'B'                
+
 
 if __name__ == '__main__':
+    '''
     print get_ip()
     print get_uuid()
     print get_code()
     print get_filelist('/dev/shm')
     print is_sqlite('../nodes.db')
     print get_free_port(8080)
-    print fpath2url('C:\\Downlaod\\你妹\\123.mp3', 'C:\\Download\\')
+    #print fpath2url(u'C:\\Downlaod\\你妹\\123.mp3', 'C:\\Download\\')
     print fpath2url('/root/path/123.mp3', '/root') =='/path/123.mp3'
     print fpath2url('C:\\Downlaod\\test\\123.mp3', 'C:\\Download\\') == '/test/123.mp3'
+    '''
+    print bytes2size(106)
