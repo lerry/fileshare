@@ -123,7 +123,7 @@ class Node(object):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         try:
-            s.sendto('sun_p2p %s %s %s' % (self.UUID, self.ip, self.port), dest)
+            s.sendto('%s %s %s %s' % (config.get('sign'), self.UUID, self.ip, self.port), dest)
         except:
             pass
 
